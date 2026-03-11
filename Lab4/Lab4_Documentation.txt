@@ -1,0 +1,244 @@
+================================================================================
+        Ingineria Programarii - Laborator 4
+        EduConnect - Platforma de Invatare Online si Marketplace de Meditatii
+================================================================================
+
+Echipa: Grupa 2A3
+  1. Brezuleanu Petru Giuliano (Leader)
+  2. Canur Andreea
+  3. Roman Florina
+  4. Gavrilean Cristian
+
+Repository: https://github.com/BrezuleanuGiuliano/IP_2026_2A3
+Branch: laboratory4
+
+================================================================================
+1. DESCRIEREA PROIECTULUI
+================================================================================
+
+EduConnect este o platforma educationala care reuneste functionalitati de
+invatare online si gasire a unui meditator potrivit. Platforma permite
+profesorilor sa publice cursuri structurate (lectii video, documente, text),
+sa creeze quiz-uri pentru evaluarea studentilor, si sa ofere meditatii
+individuale. Studentii pot parcurge cursurile, sustine evaluari, posta
+comentarii pe lectii, si rezerva sesiuni de meditatii cu profesori disponibili.
+Administratorii asigura moderarea continutului si gestionarea utilizatorilor.
+
+Actorii sistemului: Student, Profesor, Administrator, Stripe API (extern),
+                    Google OAuth (extern), Email Service (extern)
+
+================================================================================
+2. ISSUES SI RESPONSABILITATI
+================================================================================
+
+Issue #1 - C4 Model Diagrams (fara AI) [6 puncte]
+  URL: https://github.com/BrezuleanuGiuliano/IP_2026_2A3/issues/1
+  Assignees: Gavrilean Cristian (@CristiMachine25), Roman Florina (@Styx9)
+  Status: DONE
+  Commits:
+    - 4ddb069 - C1 Context Diagram
+    - 6643d7c - C2 Container Diagram
+    - 733744a - C3 Component Diagram
+
+Issue #2 - Java Class without AI [6 puncte]
+  URL: https://github.com/BrezuleanuGiuliano/IP_2026_2A3/issues/2
+  Assignee: @Andreibatman
+  Status: DONE
+  Commit: d9123d1 - 2 classes with no AI usage
+  Fisiere: Course.java, Enrollment.java
+
+Issue #3 - Java Class with AI [6 puncte]
+  URL: https://github.com/BrezuleanuGiuliano/IP_2026_2A3/issues/3
+  Assignee: Canur Andreea (@Akic25)
+  Status: DONE
+  Commit: af11a85 - 2 classes with AI
+  Fisiere: User.java, AutoGrader.java
+
+Issue #4 - Team Presentation & Score Negotiation [2 puncte]
+  URL: https://github.com/BrezuleanuGiuliano/IP_2026_2A3/issues/4
+  Assignee: Brezuleanu Petru Giuliano (@BrezuleanuGiuliano)
+  Status: DONE
+
+================================================================================
+3. CE AM REALIZAT
+================================================================================
+
+3.1 Diagrame C4 Model (fara AI) - Issue #1
+--------------------------------------------------------------------------------
+
+Am realizat cele 3 niveluri ale modelului C4 pentru platforma EduConnect:
+
+  C1 - Context Diagram:
+    - Sistemul central: EduConnect Platform
+    - Persoane: Student, Profesor, Administrator
+    - Sisteme externe: Stripe API (plati), Google OAuth (autentificare),
+      Email Service (notificari)
+    - Relatii cu protocoale: HTTPS, OAuth 2.0, SMTP
+
+  C2 - Container Diagram (zoom in pe EduConnect Platform):
+    - Web Application (React) - interfata web
+    - Mobile Application (React Native) - aplicatie mobila cross-platform
+    - Backend API (Spring Boot / Java) - logica de business, REST API
+    - Database (PostgreSQL) - stocarea tuturor datelor
+    - Notification Service (Java / Spring) - notificari in-app, email, push
+    - Protocoale: JSON/HTTPS, JDBC/SQL, Async/REST, SMTP, OAuth 2.0
+
+  C3 - Component Diagram (zoom in pe Backend API):
+    - Authentication Component (Spring Security) - register, login, OAuth, JWT
+    - Course Management Component - CRUD cursuri, adaugare lectii
+    - Quiz Engine Component - quiz-uri, intrebari, anti-cheat, corectare automata
+    - Comment System Component - comentarii pe lectii, raspunsuri, best answer
+    - Marketplace Component - profiluri tutori, cautare, rezervare sesiuni
+    - Payment Component (Stripe SDK) - procesare plati, refund
+    - Admin Component - gestionare utilizatori, moderare continut
+    - Enrollment & Progress Component - inscriere cursuri, urmarire progres
+
+  Tool utilizat: diagrams.net cu plugin-ul C4 Draw.io
+
+3.2 Clase Java fara AI - Issue #2
+--------------------------------------------------------------------------------
+
+  Course.java:
+    - Atribute: id (UUID), title, description, category, difficulty,
+      status (CourseStatus), createdAt, lessonIDs, enrollmentIDs
+    - Metode importante:
+      * publish() - valideaza ca cursul e in starea DRAFT si are cel putin
+        o lectie inainte de publicare
+      * archive() - verifica ca nu e deja arhivat
+      * addLesson() - adauga lectie cu verificare de duplicate
+    - Enum intern: CourseStatus (DRAFT, PUBLISHED, ARCHIVED)
+    - Utilizeaza Lombok (@Getter, @Setter, @AllArgsConstructor)
+
+  Enrollment.java:
+    - Atribute: id (UUID), userID, courseID, progressPercent, enrolledAt,
+      commentIDs, totalLessonsCount, solvedLessonsCount
+    - Metode importante:
+      * enroll() - confirma inscrierea
+      * updateProgress() - incrementeaza lectiile rezolvate, recalculeaza
+        procentul, anunta completarea cursului
+      * calculateProgress() - formula: (solvedLessons / totalLessons) * 100,
+        trateaza impartirea la zero
+    - Utilizeaza Lombok (@Getter, @Setter, @NoArgsConstructor)
+
+3.3 Clase Java cu AI - Issue #3
+--------------------------------------------------------------------------------
+
+  User.java:
+    - Atribute: id (UUID), email, passwordHash, name, avatarUrl,
+      role (UserRole), emailVerified, enrollments, quizAttempts,
+      bookings, comments, createdAt
+    - Metode importante:
+      * register(email, password, role) - factory method static, valideaza
+        email si parola, hash-uieste parola, extrage numele din email
+      * login(email, password) - valideaza credentialele si verificarea
+        emailului, returneaza token JWT-like
+      * loginWithOAuth(provider) - autentificare OAuth, returneaza token
+        specific providerului
+      * resetPassword(email) - genereaza token de resetare
+      * verifyEmail(token) - marcheaza emailul ca verificat
+    - Enum intern: UserRole (STUDENT, TEACHER, ADMIN)
+
+  AutoGrader.java:
+    - Componenta Spring @Service (stateless)
+    - Metode importante:
+      * grade(QuizAttempt) - numara raspunsurile corecte, calculeaza scorul
+        brut, aplica penalizare de -2% per tab-switch suplimentar (anti-cheat),
+        calculeaza scorul final, afiseaza statistici detaliate
+      * getFeedback(score, passingScore) - returneaza mesaj promovat/nepromovat
+      * getStatistics(QuizAttempt) - returneaza obiect QuizStatistics
+    - Clasa interna: QuizStatistics (score, passed, timeTakenSeconds, tabSwitches)
+
+================================================================================
+4. UTILIZAREA AI - PROMPTS SI CONTEXT
+================================================================================
+
+4.1 Tool-uri AI utilizate
+--------------------------------------------------------------------------------
+  - Claude (Claude Code - CLI) pentru generarea codului Java cu AI (Issue #3)
+  - Claude Code pentru generarea diagramelor C4 in format draw.io XML
+  - GitHub pentru colaborarea pe repository si gestionarea issues
+
+4.2 Prompts utilizate
+--------------------------------------------------------------------------------
+
+  Prompt 1 - Analiza proiectului si crearea issues:
+  "Deeply analyze what was made on the last laboratory on the main branch,
+   and adapt the issues' description with what is there to be made"
+
+  Context: Am furnizat AI-ului exercitiul de laborator si accesul la repository.
+  AI-ul a analizat fisierele din Lab 3 (fisa cerintelor, diagrama use case,
+  diagrama de clase) si a creat 4 issues pe GitHub cu descrieri detaliate
+  adaptate la tema EduConnect, incluzand actori, clase sugerate, si checklist-uri.
+
+  ----
+
+  Prompt 2 - Generare diagrama C4 Context:
+  "Make the C1, the first level C4 diagram. Give me the code for diagrams.net
+   so I can copy paste this"
+
+  Context: Am cerut cod XML pentru draw.io cu elementele C4 specifice
+  proiectului EduConnect. AI-ul a generat XML-ul cu Person shapes pentru
+  Student/Profesor/Administrator, Software System pentru EduConnect, si
+  External Systems pentru Stripe/Google OAuth/Email, cu relatii etichetate.
+
+  ----
+
+  Prompt 3 - Generare diagrama C4 Containers:
+  "Now let's go further and make the C2 diagram. We are going to zoom in
+   on the EduConnect Platform"
+
+  Context: Pornind de la C1, am cerut detalierea sistemului in containere.
+  AI-ul a generat XML-ul cu boundary dashed, containere interne (Web App,
+  Mobile App, Backend API, Database cylinder, Notification Service) si
+  sistemele externe, cu protocoale specifice pe fiecare relatie.
+
+  ----
+
+  Prompt 4 - Generare diagrama C4 Components:
+  "Continue with the C3 diagram"
+
+  Context: Zoom in pe Backend API container. AI-ul a generat 8 componente
+  light-blue (Authentication, Course Management, Quiz Engine, Enrollment,
+  Comment System, Marketplace, Payment, Admin) cu relatii interne intre
+  componente si externe catre Database, Stripe, Google OAuth, Email Service.
+
+  ----
+
+  Prompt 5 - Generare clase Java cu AI:
+  Clasele User.java si AutoGrader.java au fost generate cu asistenta AI,
+  pornind de la diagrama de clase din Lab 3 si cerintele din fisa cerintelor.
+  AI-ul a generat:
+  - Fluxul complet de autentificare in User (register, login, OAuth,
+    resetPassword, verifyEmail) cu validari si securitate
+  - Logica de corectare automata in AutoGrader cu sistem de penalizare
+    anti-cheat bazat pe tab-switch-uri
+
+4.3 Diferente intre codul scris manual vs cu AI
+--------------------------------------------------------------------------------
+
+  Fara AI (Course.java, Enrollment.java):
+  - Cod mai concis, foloseste Lombok pentru boilerplate
+  - Logica de business focusata pe operatii CRUD simple
+  - Validari de baza (status check, duplicate check, division by zero)
+
+  Cu AI (User.java, AutoGrader.java):
+  - Cod mai detaliat si mai verbose (getters/setters expliciti in User)
+  - Logica de business mai complexa (flux autentificare complet,
+    sistem de scoring cu penalizari)
+  - Output de logging mai detaliat cu formatare
+  - Clase interne suplimentare (QuizStatistics)
+  - Tratare exceptii mai granulara (SecurityException, IllegalArgumentException)
+
+================================================================================
+5. COLABORARE SI WORKFLOW
+================================================================================
+
+  - Repository GitHub: branch laboratory4 (orphan branch dedicat Lab 4)
+  - Issues create pe GitHub cu descrieri detaliate si checklist-uri
+  - Fiecare issue asignat membrilor echipei responsabili
+  - Commits referentiate in issues pentru trasabilitate
+  - Pair programming: lucru in echipe de 2, schimbare la 30 minute
+  - Tool-uri: diagrams.net (C4 plugin), IntelliJ IDEA (Java),
+    Claude Code (asistenta AI), GitHub (colaborare)
+
+================================================================================
