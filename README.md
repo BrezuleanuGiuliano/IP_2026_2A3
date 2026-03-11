@@ -11,3 +11,10 @@ Lab3:
 2. Canur Andreea
 3. Roman Florina
 4. Gavrilean Cristian
+
+Lab4: 
+1. Brezuleanu Petru Giuliano(Leader)
+2. Canur Andreea
+3. Roman Florina
+4. Gavrilean Cristian
+5. Croitoriu Andrei Bogdan
